@@ -179,7 +179,7 @@ class Route
 
     public function getRequirements()
     {
-        return $this->requirements;
+        return $this->requirements?:[];
     }
 
     public function setRegex($regex)
@@ -194,6 +194,7 @@ class Route
     }
 
     protected $params;
+
     public function setParam($k, $name)
     {
         $this->params[$k] = $name;

@@ -14,12 +14,22 @@ class Router
 {
     protected $requestContext;
     protected $routeCollection;
+    protected $matcher;
 
 
     public function __construct(RouteCollection $routeCollection, RequestContext $requestContext = null)
     {
         $this->requestContext = $requestContext ?: (new RequestContext());
         $this->routeCollection = $routeCollection;
+    }
+
+    public function setContext(RequestContext $context)
+    {
+        $this->context = $context;
+
+        if (null !== $this->matcher) {
+            $this->getMatcher()->setContext($context);
+        }
     }
 
     public function getRouteCollection():RouteCollection
@@ -37,7 +47,7 @@ class Router
         return $this->getMatcher()->match($pathinfo);//['alias','mca','middleware']
     }
 
-    public function matchRequest(Request $request)
+    public function matchRequest(RequestContext $request)
     {
         return $this->getMatcher()->matchRequest($request);
     }

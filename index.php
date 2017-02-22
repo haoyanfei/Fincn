@@ -1,54 +1,55 @@
 <?php
 require_once 'vendor/autoload.php';
 echo '<pre>';
-
+echo 'test';
 
 $application = new \Fincn\Application();
 
 
-var_dump($application::$app['request.context']);
-
-
 //var_dump($_SERVER);
-$request = createRequestFromGlobal($_SERVER);
+$request_context = createRequestFromGlobal($_SERVER);
 
 
-$application->register(new \Fincn\Provider\RequestContextProvider(), $request);
+$application->register(new \Fincn\Provider\RequestContextProvider(), ['request_context_params'=>$request_context]);
 
-var_dump($application);
+var_dump($request = $application['request_context_params']);
 
-//
-////var_dump($request);
-//$routeCollection = new \Fincn\Route\RouteCollection();
-//
-//$routeCollection->setHost('remote')->group('/admin')
-//    ->add('/', ['alias' => 'homepage', 'mca' => '\Fincn\App\Demo::test1Action', 'middleware' => 'route.auth'])
-//    ->add('/xx', ['mca' => '\Fincn\App\Demo::test2Action',])
-//    ->add('/test/{haoyanfei}', ['mca' => '\Fincn\App\Demo::test3Action'])
-//    ->add('/test/{name}/{te}', ['mca' => '\Fincn\App\Demo::test4Action']);
-//
-//
-//$routeCollection->group('/api')
-//    ->add('/', []);
-//
-////$baseUrl = '', $method = 'GET', $host = 'localhost', $scheme = 'http', $httpPort = 80, $httpsPort = 443, $path = '/', $queryString = ''
-////var_dump($routeCollection->all());
-//$requestContext = new \Fincn\Route\RequestContext(
-//    $request['base_url'],
-//    $request['method'],
-//    $request['domain'],
-//    $request['scheme'],
-//    0,
-//    0,
-//    $request['path'],
-//    $request['query_string']
-//);
-//$route = new \Fincn\Route\Router($routeCollection, $requestContext);
-//
-//
-//$res = $route->getMatcher()->matchRequest($request);
-//
-//var_dump($requestContext->setParams($res->getParams())->getParams());
+
+//var_dump($request);
+$routeCollection = new \Fincn\Route\RouteCollection();
+
+$routeCollection->setHost('192.168.1.128')->group('/admin')
+    ->add('/', ['alias' => 'homepage', 'mca' => 'Cms\Test1::test1Action', 'middleware' => 'route.auth'])
+    ->add('/xx', ['mca' => '\Fincn\App\Demo::test2Action',])
+    ->add('/test/{haoyanfei}', ['mca' => '\Fincn\App\Demo::test3Action'])
+    ->add('/test/{name}/{te}', ['mca' => '\Fincn\App\Demo::test4Action']);
+
+
+$routeCollection->group('/api')
+    ->add('/', []);
+
+//$baseUrl = '', $method = 'GET', $host = 'localhost', $scheme = 'http', $httpPort = 80, $httpsPort = 443, $path = '/', $queryString = ''
+//var_dump($routeCollection->all());
+$requestContext = new \Fincn\Route\RequestContext(
+    $request['base_url'],
+    $request['method'],
+    $request['domain'],
+    $request['scheme'],
+    0,
+    0,
+    $request['path'],
+    $request['query_string']??''
+);
+$route = new \Fincn\Route\Router($routeCollection, $requestContext);
+
+
+$res = $route->getMatcher()->matchRequest($requestContext);
+
+list($controller,$action) = explode('::',$res->getDefault('mca'));
+list($module,$c) = explode("\\",$controller);
+$new = "\\App\\{$module}\\Controller\\{$c}Controller";
+$cls = (new $new())->$action;
+
 
 function createRequestFromGlobal($serverParams)
 {

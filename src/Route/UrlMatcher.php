@@ -20,6 +20,17 @@ class UrlMatcher
         $this->context = $context;
     }
 
+    public function setContext(RequestContext $requestContext)
+    {
+        $this->context = $requestContext;
+        return $this;
+    }
+
+    public function getContext()
+    {
+        return $this->context;
+    }
+
     public function match($pathInfo)
     {
         $defaults = $this->matchCollection(rawurldecode($pathInfo), $this->routes);
@@ -37,7 +48,7 @@ class UrlMatcher
             if (!in_array($this->context->getMethod(), $route->getMethods())) {
                 continue;
             }
-            if($route->getHost() != $this->context->getHost()){
+            if(!empty($route->getHost()) && $route->getHost() != $this->context->getHost()){
                 continue;
             }
             if ($pathinfo == $route->getPath()) {
